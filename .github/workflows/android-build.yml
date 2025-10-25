@@ -1,3 +1,5 @@
+mkdir -p .github/workflows
+cat > .github/workflows/android-build.yml <<'YML'
 name: Android CI - Build APK
 
 on:
@@ -20,10 +22,13 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Ensure placeholder files for Capacitor/Cordova
+      - name: Export JAVA_HOME
+        run: echo "JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64" >> $GITHUB_ENV
+
+      - name: Crear archivo cordova.variables.gradle vacío
         run: |
           mkdir -p android/capacitor-cordova-android-plugins
-          echo "// placeholder" > android/capacitor-cordova-android-plugins/cordova.variables.gradle
+          echo "// generado automáticamente" > android/capacitor-cordova-android-plugins/cordova.variables.gradle
 
       - name: Build APK
         working-directory: android
@@ -36,3 +41,4 @@ jobs:
         with:
           name: wikirol-apk
           path: android/app/build/outputs/apk/release/*.apk
+YML
