@@ -19,6 +19,11 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
+      - name: Crear archivo cordova.variables.gradle vacío
+        run: |
+          mkdir -p android/capacitor-cordova-android-plugins
+          echo "// generado automáticamente" > android/capacitor-cordova-android-plugins/cordova.variables.gradle
+
       - name: Build APK
         working-directory: android
         run: |
