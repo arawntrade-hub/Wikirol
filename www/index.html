@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WikiRol - Gestor para Chat de Rol</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#8B4513">
+</head>
+<body>
+    <!-- Estado de conexión -->
+    <div id="offline-status" class="offline-status">
+        <div class="offline-message">
+            <i class="fas fa-wifi-slash"></i>
+            <span>Modo sin conexión - Los datos se guardan localmente</span>
+        </div>
+    </div>
+
+    <!-- Menú lateral -->
+    <aside id="sidebar" class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <i class="fas fa-dragon"></i>
+                <h2>WikiRol</h2>
+            </div>
+            <button id="close-sidebar" class="close-btn">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <nav class="sidebar-nav">
+            <ul>
+                <li><a href="#dashboard" class="nav-item active" data-section="dashboard"><i class="fas fa-home"></i><span>Inicio</span></a></li>
+                <li><a href="#items" class="nav-item" data-section="items"><i class="fas fa-cube"></i><span>Objetos</span></a></li>
+                <li><a href="#weapons" class="nav-item" data-section="weapons"><i class="fas fa-gavel"></i><span>Armas</span></a></li>
+                <li><a href="#monsters" class="nav-item" data-section="monsters"><i class="fas fa-pastafarianism"></i><span>Monstruos</span></a></li>
+                <li><a href="#export" class="nav-item" data-section="export"><i class="fas fa-file-export"></i><span>Exportar</span></a></li>
+                <li><a href="#backup" class="nav-item" data-section="backup"><i class="fas fa-download"></i><span>Respaldos</span></a></li>
+            </ul>
+        </nav>
+        <div class="sidebar-footer">
+            <div class="user-info">
+                <div class="user-avatar"><i class="fas fa-crown"></i></div>
+                <div class="user-details">
+                    <span class="username">Maestro de Rol</span>
+                    <span class="user-level">Nivel 15</span>
+                    <span class="connection-status" id="connection-status"><i class="fas fa-wifi"></i> En línea</span>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Overlay móvil -->
+    <div id="overlay" class="overlay"></div>
+
+    <!-- Contenido principal -->
+    <main id="main-content" class="main-content">
+        <header class="main-header">
+            <button id="menu-toggle" class="menu-toggle"><i class="fas fa-bars"></i></button>
+            <div class="header-title">
+                <h1>WikiRol - Gestor para Chat de Rol</h1>
+                <p>Gestiona objetos, armas y monstruos para tu aventura</p>
+            </div>
+            <button id="install-btn" class="btn btn-outline" style="display: none;">
+                <i class="fas fa-download"></i> Instalar App
+            </button>
+        </header>
+
+        <div class="drag-indicator">
+            <div class="drag-handle"><i class="fas fa-grip-lines"></i><span>Arrastra para abrir el menú</span></div>
+        </div>
+
+        <div class="content-wrapper">
+            <!-- Dashboard -->
+            <section id="dashboard" class="content-section active">
+                <div class="section-header">
+                    <h2>Bienvenido a WikiRol</h2>
+                    <p>Gestiona todos los elementos de tu mundo de rol</p>
+                </div>
+                <div class="dashboard-cards">
+                    <div class="dashboard-card">
+                        <div class="card-icon"><i class="fas fa-cube"></i></div>
+                        <h3>Objetos</h3>
+                        <p>Crea y gestiona objetos con estadísticas y efectos</p>
+                        <div class="card-stats">
+                            <span class="stat-number" id="items-count">0</span>
+                            <span class="stat-label">Objetos creados</span>
+                        </div>
+                        <button class="btn btn-primary" data-section="items"><i class="fas fa-plus"></i> Crear Objeto</button>
+                    </div>
+                    <div class="dashboard-card">
+                        <div class="card-icon"><i class="fas fa-gavel"></i></div>
+                        <h3>Armas</h3>
+                        <p>Diseña armas con daño, tipo y efectos especiales</p>
+                        <div class="card-stats">
+                            <span class="stat-number" id="weapons-count">0</span>
+                            <span class="stat-label">Armas creadas</span>
+                        </div>
+                        <button class="btn btn-primary" data-section="weapons"><i class="fas fa-plus"></i> Crear Arma</button>
+                    </div>
+                    <div class="dashboard-card">
+                        <div class="card-icon"><i class="fas fa-pastafarianism"></i></div>
+                        <h3>Monstruos</h3>
+                        <p>Crea criaturas con estadísticas y sistema de dropeo</p>
+                        <div class="card-stats">
+                            <span class="stat-number" id="monsters-count">0</span>
+                            <span class="stat-label">Monstruos creados</span>
+                        </div>
+                        <button class="btn btn-primary" data-section="monsters"><i class="fas fa-plus"></i> Crear Monstruo</button>
+                    </div>
+                </div>
+                <div class="recent-activity">
+                    <h3>Actividad Reciente</h3>
+                    <div class="activity-list" id="activity-list"></div>
+                </div>
+            </section>
+
+            <!-- Objetos -->
+            <section id="items" class="content-section">
+                <div class="section-header">
+                    <h2>Gestión de Objetos</h2>
+                    <p>Crea y gestiona objetos para tu aventura</p>
+                </div>
+                <div class="content-grid">
+                    <div class="form-container">
+                        <form id="item-form" class="creation-form">
+                            <div class="form-header">
+                                <h3 id="item-form-title">Crear Nuevo Objeto</h3>
+                                <div class="form-actions">
+                                    <button type="button" id="cancel-edit-item" class="btn btn-outline" style="display: none;">
+                                        <i class="fas fa-times"></i> Cancelar
+                                    </button>
+                                    <button type="reset" class="btn btn-outline"><i class="fas fa-redo"></i> Limpiar</button>
+                                </div>
+                            </div>
+                            <div class="form-grid">
+                                <div class="form-group"><label for="item-name">Nombre del objeto</label><input type="text" id="item-name" class="form-input" required></div>
+                                <div class="form-group"><label for="item-type">Tipo de objeto</label><input type="text" id="item-type" class="form-input" list="item-types" placeholder="Escribe o selecciona un tipo"></div>
+                                <datalist id="item-types">
+                                    <option value="Consumible"><option value="Equipable"><option value="Misceláneo"><option value="Quest">
+                                    <option value="Arma"><option value="Armadura"><option value="Accesorio"><option value="Material">
+                                    <option value="Poción"><option value="Libro">
+                                </datalist>
+                                <div class="form-group full-width"><label for="item-description">Descripción</label><textarea id="item-description" class="form-input" rows="3" required></textarea></div>
+                                <div class="form-group full-width"><label for="item-image">Imagen del objeto</label>
+                                    <div class="image-upload-container">
+                                        <input type="file" id="item-image" class="form-input" accept="image/*">
+                                        <img id="item-image-preview" class="image-preview" src="" alt="Vista previa">
+                                    </div>
+                                </div>
+                                <div class="form-group"><label for="item-rarity">Rareza</label><input type="text" id="item-rarity" class="form-input" list="rarity-types" placeholder="Escribe o selecciona una rareza"></div>
+                                <datalist id="rarity-types">
+                                    <option value="Común"><option value="Poco común"><option value="Raro"><option value="Épico">
+                                    <option value="Legendario"><option value="Mítico"><option value="Único">
+                                </datalist>
+                                <div class="form-group full-width"><label for="item-effect">Efecto especial</label><textarea id="item-effect" class="form-input" rows="2" placeholder="Describe el efecto especial del objeto"></textarea></div>
+                                <div class="form-group"><label for="item-value">Valor (monedas)</label><input type="number" id="item-value" class="form-input" min="0" value="0"></div>
+                                <div class="form-group"><label for="item-weight">Peso (kg)</label><input type="number" id="item-weight" class="form-input" min="0" step="0.1" value="0"></div>
+                            </div>
+                            <div class="monster-form-actions">
+                                <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> <span id="item-submit-text">Guardar Objeto</span></button>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="items-container">
+                        <div class="container-header">
+                            <h3>Objetos Creados</h3>
+                            <div class="container-actions">
+                                <div class="search-bar">
+                                    <input type="text" id="search-items" class="search-input" placeholder="Buscar objetos...">
+                                    <button class="btn btn-outline" id="clear-search-items"><i class="fas fa-times"></i></button>
+                                </div>
+                                <div class="dynamic-filters" id="item-rarity-filters"></div>
+                            </div>
+                        </div>
+                        <div class="items-list" id="items-list"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Armas -->
+            <section id="weapons" class="content-section">
+                <div class="section-header">
+                    <h2>Gestión de Armas</h2>
+                    <p>Crea y gestiona armas para tu aventura</p>
+                </div>
+                <div class="content-grid">
+                    <div class="form-container">
+                        <form id="weapon-form" class="creation-form">
+                            <div class="form-header">
+                                <h3 id="weapon-form-title">Crear Nueva Arma</h3>
+                                <div class="form-actions">
+                                    <button type="button" id="cancel-edit-weapon" class="btn btn-outline" style="display: none;">
+                                        <i class="fas fa-times"></i> Cancelar
+                                    </button>
+                                    <button type="reset" class="btn btn-outline"><i class="fas fa-redo"></i> Limpiar</button>
+                                </div>
+                            </div>
+                            <div class="form-grid">
+                                <div class="form-group"><label for="weapon-name">Nombre del arma</label><input type="text" id="weapon-name" class="form-input" required></div>
+                                <div class="form-group"><label for="weapon-type">Tipo de arma</label><input type="text" id="weapon-type" class="form-input" list="weapon-types" placeholder="Escribe o selecciona un tipo"></div>
+                                <datalist id="weapon-types">
+                                    <option value="Cuerpo a cuerpo"><option value="A distancia"><option value="Magia"><option value="Arrojadiza">
+                                    <option value="Una mano"><option value="Dos manos"><option value="Ligera"><option value="Pesada"><option value="Improvisada">
+                                </datalist>
+                                <div class="form-group full-width"><label for="weapon-description">Descripción</label><textarea id="weapon-description" class="form-input" rows="3" required></textarea></div>
+                                <div class="form-group full-width"><label for="weapon-image">Imagen del arma</label>
+                                    <div class="image-upload-container">
+                                        <input type="file" id="weapon-image" class="form-input" accept="image/*">
+                                        <img id="weapon-image-preview" class="image-preview" src="" alt="Vista previa">
+                                    </div>
+                                </div>
+                                <div class="form-group"><label for="weapon-rarity">Rareza</label><input type="text" id="weapon-rarity" class="form-input" list="rarity-types" placeholder="Escribe o selecciona una rareza"></div>
+                                <div class="form-group"><label for="weapon-damage">Daño</label><input type="text" id="weapon-damage" class="form-input" placeholder="Ej: 1d8" required></div>
+                                <div class="form-group"><label for="weapon-bonus">Bonificación</label><input type="number" id="weapon-bonus" class="form-input" min="0" value="0"></div>
+                                <div class="form-group"><label for="weapon-crit">Crítico</label><input type="text" id="weapon-crit" class="form-input" placeholder="Ej: 19-20/x2"></div>
+                                <div class="form-group full-width"><label for="weapon-special">Efectos especiales</label><textarea id="weapon-special" class="form-input" rows="2" placeholder="Describe los efectos especiales del arma"></textarea></div>
+                            </div>
+                            <div class="monster-form-actions">
+                                <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> <span id="weapon-submit-text">Guardar Arma</span></button>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="items-container">
+                        <div class="container-header">
+                            <h3>Armas Creadas</h3>
+                            <div class="container-actions">
+                                <div class="search-bar">
+                                    <input type="text" id="search-weapons" class="search-input" placeholder="Buscar armas...">
+                                    <button class="btn btn-outline" id="clear-search-weapons"><i class="fas fa-times"></i></button>
+                                </div>
+                                <div class="dynamic-filters" id="weapon-rarity-filters"></div>
+                                <div class="dynamic-filters" id="weapon-type-filters"></div>
+                            </div>
+                        </div>
+                        <div class="items-list" id="weapons-list"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Monstruos -->
+            <section id="monsters" class="content-section">
+                <div class="section-header">
+                    <h2>Gestión de Monstruos</h2>
+                    <p>Crea y gestiona monstruos para tu aventura</p>
+                </div>
+                <div class="content-grid">
+                    <div class="form-container">
+                        <form id="monster-form" class="creation-form">
+                            <div class="form-header">
+                                <h3 id="monster-form-title">Crear Nuevo Monstruo</h3>
+                                <div class="form-actions">
+                                    <button type="button" id="cancel-edit-monster" class="btn btn-outline" style="display: none;">
+                                        <i class="fas fa-times"></i> Cancelar
+                                    </button>
+                                    <button type="reset" class="btn btn-outline" id="reset-monster"><i class="fas fa-redo"></i> Limpiar</button>
+                                </div>
+                            </div>
+                            <div class="form-grid">
+                                <div class="form-group"><label for="monster-name">Nombre del monstruo</label><input type="text" id="monster-name" class="form-input" required></div>
+                                <div class="form-group"><label for="monster-type">Tipo de criatura</label><input type="text" id="monster-type" class="form-input" list="monster-types" placeholder="Escribe o selecciona un tipo"></div>
+                                <datalist id="monster-types">
+                                    <option value="Bestia"><option value="No-muerto"><option value="Demonio"><option value="Dragón">
+                                    <option value="Elemental"><option value="Humanoide"><option value="Aberración"><option value="Gigante">
+                                    <option value="Monstruosidad"><option value="Planta"><option value="Enjambre">
+                                </datalist>
+                                <div class="form-group full-width"><label for="monster-description">Descripción</label><textarea id="monster-description" class="form-input" rows="3" required></textarea></div>
+                                <div class="form-group full-width"><label for="monster-image">Imagen del monstruo</label>
+                                    <div class="image-upload-container">
+                                        <input type="file" id="monster-image" class="form-input" accept="image/*">
+                                        <img id="monster-image-preview" class="image-preview" src="" alt="Vista previa">
+                                    </div>
+                                </div>
+                                <div class="form-group"><label for="monster-level">Nivel</label><input type="number" id="monster-level" class="form-input" min="1" max="30" value="1"></div>
+                                <div class="form-group"><label for="monster-hp">Puntos de Vida</label><input type="number" id="monster-hp" class="form-input" min="1" value="10"></div>
+                                <div class="form-group"><label for="monster-ac">Armadura (AC)</label><input type="number" id="monster-ac" class="form-input" min="0" value="10"></div>
+                                <div class="form-group"><label for="monster-attack">Ataque</label><input type="text" id="monster-attack" class="form-input" placeholder="Ej: 1d8+2"></div>
+                                <div class="form-group"><label for="monster-xp">Experiencia</label><input type="number" id="monster-xp" class="form-input" min="0" value="0"></div>
+                                <div class="form-group full-width">
+                                    <h4>Atributos</h4>
+                                    <div class="stats-grid">
+                                        <div class="stat-input"><label for="monster-str">FUE</label><input type="number" id="monster-str" class="form-input" min="1" max="30" value="10"></div>
+                                        <div class="stat-input"><label for="monster-dex">DES</label><input type="number" id="monster-dex" class="form-input" min="1" max="30" value="10"></div>
+                                        <div class="stat-input"><label for="monster-con">CON</label><input type="number" id="monster-con" class="form-input" min="1" max="30" value="10"></div>
+                                        <div class="stat-input"><label for="monster-int">INT</label><input type="number" id="monster-int" class="form-input" min="1" max="30" value="10"></div>
+                                        <div class="stat-input"><label for="monster-wis">SAB</label><input type="number" id="monster-wis" class="form-input" min="1" max="30" value="10"></div>
+                                        <div class="stat-input"><label for="monster-cha">CAR</label><input type="number" id="monster-cha" class="form-input" min="1" max="30" value="10"></div>
+                                    </div>
+                                </div>
+                                <div class="form-group full-width"><label for="monster-abilities">Habilidades especiales</label><textarea id="monster-abilities" class="form-input" rows="2" placeholder="Describe las habilidades especiales del monstruo"></textarea></div>
+                                <div class="form-group full-width">
+                                    <div class="drop-header">
+                                        <h4>Sistema de Dropeo</h4>
+                                        <button type="button" class="btn btn-outline btn-sm" id="add-drop"><i class="fas fa-plus"></i> Añadir Drop</button>
+                                    </div>
+                                    <div id="drops-container" class="drops-container"></div>
+                                    <div class="drop-simulator">
+                                        <h5>Simulador de Dropeo</h5>
+                                        <p>Haz una tirada para ver qué obtendrías al derrotar a este monstruo</p>
+                                        <div class="form-group"><label for="drop-rolls">Número de tiradas</label><input type="number" id="drop-rolls" class="form-input" min="1" max="10" value="1"></div>
+                                        <button type="button" class="btn btn-primary" id="simulate-drop"><i class="fas fa-dice"></i> Tirada Drop</button>
+                                        <div id="drop-result" class="drop-result"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="monster-form-actions">
+                                <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> <span id="monster-submit-text">Guardar Monstruo</span></button>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="items-container">
+                        <div class="container-header">
+                            <h3>Monstruos Creados</h3>
+                            <div class="container-actions">
+                                <div class="search-bar">
+                                    <input type="text" id="search-monsters" class="search-input" placeholder="Buscar monstruos...">
+                                    <button class="btn btn-outline" id="clear-search-monsters"><i class="fas fa-times"></i></button>
+                                </div>
+                                <div class="dynamic-filters" id="monster-type-filters"></div>
+                            </div>
+                        </div>
+                        <div class="items-list" id="monsters-list"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Exportar -->
+            <section id="export" class="content-section">
+                <div class="section-header">
+                    <h2>Exportar para WhatsApp</h2>
+                    <p>Exporta tus creaciones en formato optimizado para WhatsApp</p>
+                </div>
+                <div class="export-container">
+                    <div class="export-controls">
+                        <div class="form-group"><label for="export-type">Tipo de elemento</label>
+                            <select id="export-type" class="form-input">
+                                <option value="items">Objetos</option>
+                                <option value="weapons">Armas</option>
+                                <option value="monsters">Monstruos</option>
+                            </select>
+                        </div>
+                        <div class="form-group"><label for="export-item">Elemento a exportar</label>
+                            <select id="export-item" class="form-input">
+                                <option value="">Selecciona un elemento</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="export-preview">
+                        <div class="preview-header">
+                            <h3>Vista Previa para WhatsApp</h3>
+                            <button id="copy-btn" class="btn btn-primary"><i class="fas fa-copy"></i> Copiar Texto</button>
+                        </div>
+                        <div id="export-text" class="export-text">
+                            <p>Selecciona un elemento para ver su formato de exportación.</p>
+                        </div>
+                    </div>
+                    <div class="export-actions">
+                        <button id="clear-all-btn" class="btn btn-danger"><i class="fas fa-trash"></i> Limpiar Todos los Datos</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Respaldos -->
+            <section id="backup" class="content-section">
+                <div class="section-header">
+                    <h2>Respaldos y Exportación</h2>
+                    <p>Guarda y recupera tus datos de forma segura</p>
+                </div>
+                <div class="content-grid">
+                    <div class="form-container">
+                        <div class="form-header"><h3>Crear Respaldo</h3></div>
+                        <div class="form-grid">
+                            <div class="form-group full-width">
+                                <p>Guarda todos tus datos en un archivo para tener un respaldo seguro.</p>
+                                <button id="backup-btn" class="btn btn-primary"><i class="fas fa-download"></i> Descargar Respaldo</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-container">
+                        <div class="form-header"><h3>Restaurar Respaldo</h3></div>
+                        <div class="form-grid">
+                            <div class="form-group full-width">
+                                <p>Recupera tus datos desde un archivo de respaldo anterior.</p>
+                                <div class="image-upload-container">
+                                    <input type="file" id="restore-file" class="form-input" accept=".json">
+                                    <button id="restore-btn" class="btn btn-outline" disabled><i class="fas fa-upload"></i> Restaurar Datos</button>
+                                </div>
+                                <p class="warning-text"><i class="fas fa-exclamation-triangle"></i> Advertencia: Esto sobrescribirá todos los datos actuales</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-container" style="margin-top: 2rem;">
+                    <div class="form-header"><h3>Información del Sistema</h3></div>
+                    <div class="form-grid">
+                        <div class="form-group"><label>Estado de conexión</label>
+                            <div id="system-status" class="system-status"><i class="fas fa-wifi"></i><span>En línea - Sincronización activa</span></div>
+                        </div>
+                        <div class="form-group"><label>Espacio utilizado</label>
+                            <div id="storage-usage" class="storage-usage">
+                                <div class="storage-bar"><div class="storage-fill" id="storage-fill"></div></div>
+                                <span id="storage-text">0 KB / 5 MB</span>
+                            </div>
+                        </div>
+                        <div class="form-group"><label>Versión de la aplicación</label><div class="version-info">v1.0.0</div></div>
+                        <div class="form-group"><label>Último respaldo</label><div id="last-backup" class="last-backup">Nunca</div></div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
