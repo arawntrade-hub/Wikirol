@@ -24,6 +24,10 @@ allprojects {
     }
 }
 
+tasks.withType(JavaCompile).configureEach {
+    options.release = 17
+}
+
 task clean(type: Delete) {
     delete rootProject.buildDir
 }
