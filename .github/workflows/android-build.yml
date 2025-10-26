@@ -1,6 +1,4 @@
-git add .github/workflows/android-build.yml
-git commit -m "Corrige sintaxis YAML y configura workflow Android"
-git push --forcename: Android CI - Build APK
+name: Android CI - Build APK
 
 on:
   push:
