@@ -20,9 +20,6 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Export JAVA_HOME
-        run: echo "JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64" >> $GITHUB_ENV
-
       - name: Crear archivo cordova.variables.gradle vacío
         run: |
           mkdir -p android/capacitor-cordova-android-plugins
