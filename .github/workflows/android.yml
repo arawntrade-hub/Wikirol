@@ -19,6 +19,10 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
+      - name: Dar permisos a gradlew
+        working-directory: android
+        run: chmod +x gradlew
+
       - name: Build APK
         working-directory: android
         run: ./gradlew assembleRelease
