@@ -1,4 +1,4 @@
-name: Android CI - Build APK
+name: Android Build
 
 on:
   push:
@@ -8,7 +8,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
 
     steps:
       - name: Checkout repo
@@ -17,21 +16,14 @@ jobs:
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
-          java-version: '17'
           distribution: 'temurin'
-
-      - name: Crear archivo cordova.variables.gradle vacío
-        run: |
-          mkdir -p android/capacitor-cordova-android-plugins
-          echo "// generado automáticamente" > android/capacitor-cordova-android-plugins/cordova.variables.gradle
+          java-version: '17'
 
       - name: Build APK
         working-directory: android
-        run: |
-          chmod +x ./gradlew
-          ./gradlew --no-daemon assembleRelease
+        run: ./gradlew assembleRelease
 
-      - name: Upload APK artifact
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: wikirol-apk
