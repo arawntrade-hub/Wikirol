@@ -1,6 +1,6 @@
-mkdir -p .github/workflows
-cat > .github/workflows/android-build.yml <<'YML'
-name: Android CI - Build APK
+git add .github/workflows/android-build.yml
+git commit -m "Corrige sintaxis YAML y configura workflow Android"
+git push --forcename: Android CI - Build APK
 
 on:
   push:
@@ -41,4 +41,3 @@ jobs:
         with:
           name: wikirol-apk
           path: android/app/build/outputs/apk/release/*.apk
-YML
